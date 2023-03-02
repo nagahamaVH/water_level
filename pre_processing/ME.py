@@ -22,7 +22,7 @@ if __name__ == "__main__":
     import pandas as pd
     from tqdm import tqdm
 
-    stations = pd.read_csv("data/StationDetails.csv")
+    stations = pd.read_csv("data/ME_StationDetails.csv")
 
     for s in tqdm(stations["station name"]):
         get_daily(s)
