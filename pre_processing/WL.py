@@ -1,7 +1,8 @@
-import requests
-import os
 import json
 import pandas as pd
+import wget
+import zipfile
+import shutil
 
 
 def station_json_to_csv(file):
@@ -11,33 +12,56 @@ def station_json_to_csv(file):
     df["station.num"] = df["properties.ref"].str.extract(r"(\d{5})$")
     df["latitude"] = df["geometry.coordinates"].str[0]
     df["longitude"] = df["geometry.coordinates"].str[1]
-    df = df.drop(["type", "properties.ref", "geometry.type", "geometry.coordinates"], axis=1)
-    df.to_csv("data/WL_Station.csv", index=False)
+    df = df.drop(["type", "properties.ref", "geometry.type",
+                 "geometry.coordinates"], axis=1)
+    df.to_csv("data/WL/WL_Station.csv", index=False)
 
 
-def get_daily(station_name):
-    endpoint = "http://waterlevel.ie/data/day/<station_num>_<sensor_num>.csv"
-    # endpoint = "https://cli.fusio.net/cli/climate_data/webdata/dly%s.csv" % station_name
-    csv_file = "dly%s.csv" % station_name
-
-    r = requests.get(endpoint)
-    if r.status_code == 200:
-        df = clean(r.text)
-        with open(os.path.join("data/raw", csv_file), "w") as f:
-            f.write(df)
+def get_daily(station, out_dir):
+    endpoint = "https://waterlevel.ie/hydro-data/stations/%s/Parameter/S/dailymean.zip" % station
+    try:
+        # Download zip
+        wget.download(endpoint, out=out_dir, bar=False)
+        # Unzip
+        with zipfile.ZipFile(os.path.join(out_dir, "dailymean.zip"), 'r') as zip:
+            zip.extractall(os.path.join(out_dir, station))
+        # Find extracted txt
+        file = os.listdir(os.path.join(out_dir, station))[0]
+        # Clean
+        with open(os.path.join(out_dir, station, file), "r") as f:
+            data = f.read()
+        clean_data = clean(data)
+        # Save as csv
+        with open(os.path.join(out_dir, station + ".csv"), "w") as f:
+            f.write(clean_data)
+        # Clean directory
+        shutil.rmtree(os.path.join(out_dir, station))
+        os.remove(os.path.join(out_dir, "dailymean.zip"))
+    except:
+        pass
 
 
 def clean(data):
-    clean = data[data.find("date,"):]
+    clean = data[data.find("Date	"):]
     return clean
 
 
 if __name__ == "__main__":
     import pandas as pd
     from tqdm import tqdm
+    import os
+    import shutil
 
-    station_json_to_csv("data/WL_Station.json")
-    stations = pd.read_csv("data/WL_Station.csv")
+    RAW_PATH = "data/WL/raw"
 
-    for s in tqdm(stations["station name"]):
-        get_daily(s)
+    station_json_to_csv("data/WL/WL_Station.json")
+    stations = pd.read_csv("data/WL/WL_Station.csv")
+
+    if os.path.exists(RAW_PATH):
+        shutil.rmtree(RAW_PATH)
+
+    if not os.path.exists(RAW_PATH):
+        os.makedirs(RAW_PATH)
+
+    for (idx, row) in tqdm(stations.iterrows(), total=stations.shape[0]):
+        get_daily(str(row.loc["station.num"]), RAW_PATH)

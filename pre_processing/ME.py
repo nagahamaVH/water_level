@@ -9,7 +9,7 @@ def get_daily(station_name):
     r = requests.get(endpoint)
     if r.status_code == 200:
         df = clean(r.text)
-        with open(os.path.join("data/raw", csv_file), "w") as f:
+        with open(os.path.join("data/ME/raw", csv_file), "w") as f:
             f.write(df)
 
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     import pandas as pd
     from tqdm import tqdm
 
-    stations = pd.read_csv("data/ME_StationDetails.csv")
+    stations = pd.read_csv("data/ME/ME_StationDetails.csv")
 
     for s in tqdm(stations["station name"]):
         get_daily(s)
