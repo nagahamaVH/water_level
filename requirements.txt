@@ -1,0 +1,15 @@
+autopep8 @ file:///opt/conda/conda-bld/autopep8_1650463822033/work
+certifi @ file:///croot/certifi_1671487769961/work/certifi
+charset-normalizer==3.0.1
+idna==3.4
+numpy==1.24.2
+pandas==1.5.3
+pycodestyle @ file:///croot/pycodestyle_1674267221883/work
+python-dateutil==2.8.2
+pytz==2022.7.1
+requests==2.28.2
+six==1.16.0
+toml @ file:///tmp/build/80754af9/toml_1616166611790/work
+tqdm==4.64.1
+urllib3==1.26.14
+wget==3.2
