@@ -6,9 +6,10 @@ if (!dir.exists("./data/clean/")) {
   dir.create("./data/clean/")
 }
 
+# ---------------------------------------------------------------------------
 # Water level
+# ---------------------------------------------------------------------------
 date_threshold <- Sys.Date() + 1
-
 wl_files <- list.files("./data/raw/WL")
 
 if (dir.exists("./data/clean/WL")) {
@@ -37,7 +38,9 @@ for (i in 1:length(wl_files)) {
   }
 }
 
+# ---------------------------------------------------------------------------
 # Met Eireann
+# ---------------------------------------------------------------------------
 fix_names <- function(file) {
   header <- read_lines(file, n_max = 1) |> 
     str_split_1(",")

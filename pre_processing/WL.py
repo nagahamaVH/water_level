@@ -14,7 +14,7 @@ def station_json_to_csv(file):
     df["longitude"] = df["geometry.coordinates"].str[1]
     df = df.drop(["type", "properties.ref", "geometry.type",
                  "geometry.coordinates"], axis=1)
-    df.to_csv("data/WL/WL_Station.csv", index=False)
+    df.to_csv("data/WL_Station.csv", index=False)
 
 
 def get_daily(station, out_dir):
@@ -52,15 +52,18 @@ if __name__ == "__main__":
     import os
     import shutil
 
-    RAW_PATH = "data/WL/raw"
+    RAW_PATH = "data/raw/WL"
 
-    station_json_to_csv("data/WL/WL_Station.json")
-    stations = pd.read_csv("data/WL/WL_Station.csv")
+    station_json_to_csv("data/WL_Station.json")
+    stations = pd.read_csv("data/WL_Station.csv")
+
+    if not os.path.exists("data/raw"):
+        os.makedirs("data/raw")
 
     if os.path.exists(RAW_PATH):
         shutil.rmtree(RAW_PATH)
-
-    if not os.path.exists(RAW_PATH):
+        os.makedirs(RAW_PATH)
+    else:
         os.makedirs(RAW_PATH)
 
     for (idx, row) in tqdm(stations.iterrows(), total=stations.shape[0]):
